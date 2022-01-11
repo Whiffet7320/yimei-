@@ -3,7 +3,7 @@
 		<u-select @confirm='changeCity' v-model="cityShow" :list="cityList"></u-select>
 		<view class="nav1">
 			<view class="tit1">
-				<view v-if="city.label" @click="cityShow = true" class="txt1">{{city.label}}<u-icon name="arrow-down" color="#000000" size="20"></u-icon></view>
+				<!-- <view v-if="city.label" @click="cityShow = true" class="txt1">{{city.label}}<u-icon name="arrow-down" color="#000000" size="20"></u-icon></view> -->
 				<view class="myInp" @click="toSearch">
 					<u-icon name="search" color="#000000" size="28"></u-icon>
 					<input type="text" class="input" placeholder='搜索专家/项目/关键词' placeholder-style='color: #122106;' />
@@ -393,6 +393,7 @@
 			padding-top: 32rpx;
 			display: flex;
 			align-items: center;
+			justify-content: center;
 
 			.txt1 {
 				font-size: 28rpx;
