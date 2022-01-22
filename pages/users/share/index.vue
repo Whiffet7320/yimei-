@@ -36,7 +36,9 @@
 				}],
 				show: false,
 				code: "",
-				arr: [],
+				arr: [{},{
+					poster:'',
+				}],
 				xcxImg: '',
 			}
 		},

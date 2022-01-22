@@ -342,12 +342,16 @@
 			},
 			//广告跳转
 			goShop(){
+				// #ifdef MP-WEIXIN
 				uni.navigateTo({
 					url:"/pages/index/live/index"
 				})
-				// uni.switchTab({
-				// 	url:"/pages/tabBar/yanxuanshangcheng"
-				// })
+				// #endif
+				// #ifdef APP-PLUS
+				uni.switchTab({
+					url:"/pages/tabBar/yanxuanshangcheng"
+				})
+				// #endif
 			},
 			// tabs通知swiper切换
 			tabsChange(index) {

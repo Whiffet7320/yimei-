@@ -38,6 +38,9 @@ export default {
 	guanggao:"/api/guanggao", //广告
 	wechatLive:"/api/wechat/live", //直播
 	lianxifangshi:"/api/lianxifangshi", //联系方式
+	mobile:'/api/login/mobile',//验证码登录
+	apiRegister:'/api/register',//注册
+	apiLogin:'/api/login',//用户登录
 	// 
 	loginWechat: '/api/login/wechat',
 	category: '/api/category', //商品分类

@@ -111,7 +111,9 @@
 			return {
 				skuItem: '',
 				id: '',
-				obj: {},
+				obj: {
+					storeInfo:{}
+				},
 				skuNum: 1,
 				skuIndex: 0,
 				gwcShow: false,

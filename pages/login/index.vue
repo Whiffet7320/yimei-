@@ -226,17 +226,6 @@
 			},
 			//验证码登录
 			phoneLogin() {
-				let isphone = this.$u.test.mobile(this.form.phone);
-				let iscode = this.$u.test.code(this.form.code, 4);
-				let backurl = uni.getStorageSync("backurl");
-				if (!isphone) {
-					this.$u.toast("请输入正确的手机号");
-					return false;
-				}
-				if (this.form.code == "") {
-					this.$u.toast("请输入正确的验证码");
-					return false;
-				}
 				uni.showLoading({
 					title: "登录中...",
 					mask: true
@@ -257,6 +246,7 @@
 							time: time
 						});
 						uni.setStorageSync("token", res.data.token);
+						uni.hideLoading();
 						setTimeout(() => {
 							uni.switchTab({
 								url: '/pages/tabBar/index'

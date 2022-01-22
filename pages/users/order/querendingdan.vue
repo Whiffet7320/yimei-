@@ -153,6 +153,7 @@
 				}
 			},
 			goPay(jsConfig){
+				console.log(jsConfig)
 				switch (this.paytype) {
 					case 'yue':
 						uni.hideLoading();
@@ -173,6 +174,7 @@
 						},1500)
 					break;
 					case 'weixin':
+					// #ifdef  MP-WEIXIN
 						uni.requestPayment({
 							provider: 'wxpay',
 							timeStamp: jsConfig.timestamp,
@@ -210,6 +212,42 @@
 								}
 							}
 						});
+					// #endif
+					// #ifdef  APP-PLUS
+						uni.requestPayment({
+						    "provider": "wxpay", 
+						    "orderInfo": {
+						        "appid": jsConfig.appId,  // 微信开放平台 - 应用 - AppId，注意和微信小程序、公众号 AppId 可能不一致
+						        "noncestr": jsConfig.nonceStr, // 随机字符串
+						        "package": jsConfig.package,        // 固定值
+						        "partnerid": "1600534107",      // 微信支付商户号
+						        "prepayid": jsConfig.package, // 统一下单订单号 
+						        "timestamp": jsConfig.timestamp,        // 时间戳（单位：秒）
+						        "sign": jsConfig.paySign // 签名，这里用的 MD5 签名
+						    },
+						    success(res) {
+								uni.hideLoading();
+								uni.showToast({
+									title:"支付成功",
+									icon:"success"
+								})
+								setTimeout(()=>{
+									if(this.order_pay_info.pink_id){
+										uni.redirectTo({
+											url:"/pages/users/order/combinationStatus?id="+this.order_pay_info.pink_id
+										})
+									}else{
+										uni.redirectTo({
+											url:"/pages/users/order/list"
+										})
+									}
+								},1500)
+							},
+						    fail(e) {
+								console.log(e)
+							}
+						})
+					// #endif
 					break;
 				}
 			}

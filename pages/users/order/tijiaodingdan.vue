@@ -122,7 +122,7 @@
 				isAgain: 'no',
 				addNum: '',
 				InpNum: 0,
-				addressObj: null,
+				addressObj: {},
 				skuItem: null,
 				buyNum: '',
 				shopName: '',

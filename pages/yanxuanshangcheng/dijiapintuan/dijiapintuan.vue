@@ -56,24 +56,8 @@
 				<view class='more' @tap='hideAll' v-else-if="pink.length === AllIndex && pink.length !== AllIndexDefault">收起</view>
 			</template>
 		</view>
-		<!-- <view class="nav4">
-			<u-tabs-swiper bg-color="#ffffff" height='80' font-size="28" gutter="30" inactive-color="#707070"
-				bar-height="4" bar-width="84" active-color="#BD9E81" ref="uTabs" :list="list" :current="current"
-				@change="tabsChange" :is-scroll="false" swiperWidth="750"></u-tabs-swiper>
-			<swiper :style="[{height: height + 'px'}]" :current="swiperCurrent" @animationfinish="animationfinish">
-				<swiper-item @touchmove.stop class="swiper-item" v-for="(item, index) in list" :key="index">
-					<scroll-view scroll-y='true'>
-						<view class="nav5Items">
-							<template v-if="swiperCurrent == 0">
-							</template>
-							<template v-if="swiperCurrent == 1">
-							</template>
-						</view>
-					</scroll-view>
-				</swiper-item>
-			</swiper>
-		</view> -->
-		<view class="tabmenu_sticky">
+		
+		<!-- <view class="tabmenu_sticky">
 			<view class="tabmenu">
 				<view class="tabitem" :class="{'active':current==index}" v-for="(item,index) in list" :key="index" @click="tabsChange(index)">{{item.name}}</view>
 			</view>
@@ -88,9 +72,18 @@
 				<comment-list :Obj="pingjiaObj" :list="pinglunList" @getPinglunData="getPinglunData" @toSeeImg="toSeeImg"></comment-list>
 				<u-loadmore :status="status" font-size="22" />
 			</view>
+		</view> -->
+		<view class="nav5">
+			<view class="title">
+				<view class="shu"></view>
+				<view class="t-txt">产品详情</view>
+			</view>
+			<view class="content">
+				<u-parse :html="obj.storeInfo.description"></u-parse>
+			</view>
 		</view>
 		<u-gap height="140"></u-gap>
-		<product-sku :attr='attribute' :limitNum='1' @myevent="onMyEvent" @ChangeAttr="ChangeAttr" @ChangeCartNum="ChangeCartNum" @iptCartNum="iptCartNum" @attrVal="attrVal" @getImg="showImg"></product-sku>
+		<product-sku :attr='attribute' :limitNum='1' @myevent="onMyEvent" @ChangeAttr="ChangeAttr" @ChangeCartNum="ChangeCartNum" @iptCartNum="iptCartNum" @attrVal="attrVal" ></product-sku>
 		<view class="footer" v-if="attribute.productSelect.product_stock>0&&attribute.productSelect.quota>0">
 			<view @click="kaituan" class="btn">我要开团</view>
 		</view>
@@ -116,7 +109,12 @@
 				pingjiaObj:{},
 				pinglunList: [],
 				id: '',
-				obj: {},
+				obj: {
+					doctor_info:{
+						doctor_product_img:''
+					},
+					storeInfo:{}
+				},
 				d: '0',
 				h: '00',
 				m: '00',
@@ -406,7 +404,7 @@
 					return false;
 				}
 				let data = {
-					cartNum:1,
+					cartNum:this.attribute.productSelect.cart_num,
 					combinationId:this.obj.storeInfo.id,
 					new:1,
 					productId:this.obj.storeInfo.product_id,
@@ -957,4 +955,35 @@
 	    line-height: 90rpx;
 	  }
 	}
+	
+	.nav5 {
+		margin-top: 20rpx;
+		background: #FFFFFF;
+	
+		.title {
+			display: flex;
+			align-items: center;
+			padding: 24rpx 0;
+	
+			.shu {
+				margin-left: 24rpx;
+				margin-right: 20rpx;
+				width: 6rpx;
+				height: 28rpx;
+				background: #BD9E81;
+			}
+	
+			.t-txt {
+				font-size: 28rpx;
+				font-weight: bold;
+				color: #BD9E81;
+			}
+		}
+	
+		.content {
+			width: 100%;
+			padding: 0 24rpx;
+		}
+	}
+	
 </style>

@@ -47,6 +47,7 @@
 			}
 		},
 		methods:{
+			// #ifdef  MP-WEIXIN
 			toPay(){
 				uni.showLoading({
 					title:"支付中..."
@@ -83,6 +84,49 @@
 					}
 				});
 			},
+			// #endif
+			// #ifdef  APP-PLUS
+			toPay(){
+				uni.showLoading({
+					title:"支付中..."
+				})
+				uni.requestPayment({
+				    "provider": "wxpay", 
+				    "orderInfo": {
+				        "appid": this.obj.jsConfig.appId,  // 微信开放平台 - 应用 - AppId，注意和微信小程序、公众号 AppId 可能不一致
+				        "noncestr": this.obj.jsConfig.nonceStr, // 随机字符串
+				        "package": this.obj.jsConfig.package,        // 固定值
+				        "partnerid": "1600534107",      // 微信支付商户号
+				        "prepayid": this.obj.jsConfig.package, // 统一下单订单号 
+				        "timestamp": this.obj.jsConfig.timestamp,        // 时间戳（单位：秒）
+				        "sign": this.obj.jsConfig.paySign // 签名，这里用的 MD5 签名
+				    },
+				    success: (res)=> {
+				    	uni.hideLoading();
+				    	uni.showToast({
+				    		title:"支付成功",
+				    		icon:"success"
+				    	})
+				    	setTimeout(()=>{
+				    		uni.redirectTo({
+				    			url:"/pages/users/order/list"
+				    		})
+				    	},1500)
+				    },
+				    fail:(err)=> {
+				    	uni.hideLoading();
+				    	console.log('fail:' + JSON.stringify(err));
+				    	this.$u.toast(err);
+				    },
+				    complete: (e)=> {
+				    	uni.hideLoading();
+				    	if (e.errMsg == 'requestPayment:cancel'){
+				    		this.$u.toast("取消支付");
+				    	}
+				    }
+				})
+			},
+			// #endif
 		}
 	}
 </script>

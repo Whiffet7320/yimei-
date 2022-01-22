@@ -27,10 +27,9 @@
 				</view>
 				<view class="AddStat">
 					<view class="Puin">
-						<picker mode="multiSelector" @change="bindRegionChange" @columnchange="bindMultiPickerColumnChange" :value="valueRegion" :range="multiArray">
-							<view class="picker" v-if="region.length">{{region[0]}}{{region[1]}}{{region[2]}}</view>
-							<view style="color:#DEDEDE" v-else>请选择地区</view>
-						</picker>
+							<view @click="showx = true" class="picker" v-if="region.length">{{region[0]}}{{region[1]}}{{region[2]}}</view>
+							<view @click="showx = true" style="color:#DEDEDE" v-else>请选择地区</view>
+						<u-select v-model="showx" mode="mutil-column-auto" :list="district" value-name='v' label-name='n'  @confirm="confirm"></u-select>
 					</view>
 					<view class="icon">
 						<u-icon name="arrow-right" color="#CCCCCC" size="28"></u-icon>
@@ -92,6 +91,7 @@
 	export default {
 		data() {
 			return {
+				showx:false,
 				popShow1: false,
 				infoName: '', //收货人
 				Phone: '', //手机号码
@@ -107,6 +107,7 @@
 				cityId: 0,
 				defaultRegion: ['广东省', '广州市', '番禺区'],
 				defaultRegionCode: '440113',
+				a:[],
 			}
 		},
 		computed:{
@@ -126,14 +127,31 @@
 			getCitylist(){
 				this.$api.cityList().then((res)=>{
 					this.district = res.data;
+					this.district.forEach(ele=>{
+						ele.children = ele.c
+						if(ele.children.length>0){
+							ele.children.forEach(ele2=>{
+								ele2.children = ele2.c
+							})
+						}
+					})
+					console.log(res.data)
 					this.initialize();
 				})
+			},
+			confirm(e){
+				console.log(e)
+				this.region = [e[0].label,e[1].label,e[2].label];
+				this.cityId = e[1].value
 			},
 			initialize(){
 				let that = this,
 					province = [],
 					city = [],
 					area = [];
+				that.district.forEach(ele=>{
+					
+				})
 				if (that.district.length) {
 					let cityChildren = that.district[0].c || [];
 					let areaChildren = cityChildren.length ? (cityChildren[0].c || []) : [];
@@ -147,6 +165,7 @@
 						area.push(item.n);
 					});
 					this.multiArray = [province, city, area]
+					console.log(this.multiArray)
 				}
 			},
 			bindRegionChange(e) {
@@ -166,46 +185,45 @@
 				this.initialize();
 			},
 			bindMultiPickerColumnChange(e) {
-				let that = this,
-					column = e.detail.column,
-					value = e.detail.value,
-					currentCity = this.district[value] || {
-						c: []
-					},
-					multiArray = that.multiArray,
-					multiIndex = that.multiIndex;
-				multiIndex[column] = value;
-				switch (column) {
-					case 0:
-						let areaList = currentCity.c[0] || {
-							c: []
-						};
-						multiArray[1] = currentCity.c.map((item) => {
-							return item.n;
-						});
-						multiArray[2] = areaList.c.map((item) => {
-							return item.n;
-						});
-						break;
-					case 1:
-						let cityList = that.district[multiIndex[0]].c[multiIndex[1]].c || [];
-						multiArray[2] = cityList.map((item) => {
-							return item.n;
-						});
-						break;
-					case 2:
+				console.log(e)
+			// 	let that = this,
+			// 		column = e.column,
+			// 		value = e.value,
+			// 		currentCity = this.district[value] || {
+			// 			c: []
+			// 		},
+			// 		multiArray = that.multiArray,
+			// 		multiIndex = that.multiIndex;
+			// 	multiIndex[column] = value;
+			// 	switch (column) {
+			// 		case 0:
+			// 			let areaList = currentCity.c[0] || {
+			// 				c: []
+			// 			};
+			// 			multiArray[1] = currentCity.c.map((item) => {
+			// 				return item.n;
+			// 			});
+			// 			multiArray[2] = areaList.c.map((item) => {
+			// 				return item.n;
+			// 			});
+			// 			break;
+			// 		case 1:
+			// 			let cityList = that.district[multiIndex[0]].c[multiIndex[1]].c || [];
+			// 			multiArray[2] = cityList.map((item) => {
+			// 				return item.n;
+			// 			});
+			// 			break;
+			// 		case 2:
 			
-						break;
-				}
-				// #ifdef MP
-				this.$set(this.multiArray, 0, multiArray[0]);
-				this.$set(this.multiArray, 1, multiArray[1]);
-				this.$set(this.multiArray, 2, multiArray[2]);
-				// #endif
-				// #ifdef H5
-				this.multiArray = multiArray;
-				// #endif
-				this.multiIndex = multiIndex;
+			// 			break;
+			// 	}
+			// 	this.$set(this.multiArray, 0, multiArray[0]);
+			// 	this.$set(this.multiArray, 1, multiArray[1]);
+			// 	this.$set(this.multiArray, 2, multiArray[2]);
+			// 	// #ifdef H5
+			// 	this.multiArray = multiArray;
+			// 	// #endif
+			// 	this.multiIndex = multiIndex;
 			},
 			getUserAddress() {
 				if (!this.id) return false;

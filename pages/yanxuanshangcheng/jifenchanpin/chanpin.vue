@@ -27,7 +27,9 @@
 	export default {
 		data() {
 			return {
-				obj:{},
+				obj:{
+					storeInfo:{}
+				},
 				id:0,
 				isOnShow: true,
 				bannerList: [],

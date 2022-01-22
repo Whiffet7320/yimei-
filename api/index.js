@@ -77,7 +77,8 @@ myPut.interceptors.request.use(config => {
 	if (uni.getStorageSync('token')) {
 		config.headers = {
 			'Accept': 'application/json',
-			'Authorization': `Bearer ${uni.getStorageSync('token')}`
+			'Authorization': `Bearer ${uni.getStorageSync('token')}`,
+			'Form-type':'app'
 			// 'token':  uni.getStorageSync('token'),
 			// 'Access-Control-Allow-Origin': '*',
 			// "access-control-allow-credentials": "true"
@@ -94,7 +95,8 @@ myDelete.interceptors.request.use(config => {
 	if (uni.getStorageSync('token')) {
 		config.headers = {
 			'Accept': 'application/json',
-			'Authorization': `Bearer ${uni.getStorageSync('token')}`
+			'Authorization': `Bearer ${uni.getStorageSync('token')}`,
+			'Form-type':'app'
 			// 'token':  uni.getStorageSync('token'),
 			// 'Access-Control-Allow-Origin': '*',
 			// "access-control-allow-credentials": "true"
@@ -111,7 +113,8 @@ myPost.interceptors.request.use(config => {
 	if (uni.getStorageSync('token')) {
 		config.headers = {
 			'Accept': 'application/json',
-			'Authorization': `Bearer ${uni.getStorageSync('token')}`
+			'Authorization': `Bearer ${uni.getStorageSync('token')}`,
+			'Form-type':'app'
 			// 'token':  uni.getStorageSync('token'),
 			// 'Access-Control-Allow-Origin': '*',
 			// "access-control-allow-credentials": "true"
@@ -129,6 +132,7 @@ myUploadImg.interceptors.request.use(config => {
 		config.headers = {
 			"Content-Type": "multipart/form-data;charse=UTF-8",
 			'Authorization': `Bearer ${uni.getStorageSync('token')}`,
+			'Form-type':'app'
 		}
 		// config.headers.token = uni.getStorageSync('token');
 	}
@@ -249,7 +253,8 @@ myGet.interceptors.request.use(config => {
 			// 'token': sessionStorage.token,
 			'Authorization': `Bearer ${uni.getStorageSync('token')}`,
 			'Access-Control-Allow-Origin': '*',
-			"access-control-allow-credentials": "true"
+			"access-control-allow-credentials": "true",
+			'Form-type':'app'
 		}
 		config.headers.token = uni.getStorageSync('token');
 	}
@@ -619,6 +624,30 @@ dzpMyGet.interceptors.response.use(response => {
 })
 
 export default {
+	apiLogin(obj) {
+		return myPost({
+			url: urls.apiLogin,
+			data: {
+				...obj
+			}
+		})
+	},
+	apiRegister(obj) {
+		return myPost({
+			url: urls.apiRegister,
+			data: {
+				...obj
+			}
+		})
+	},
+	mobile(obj) {
+		return myPost({
+			url: urls.mobile,
+			data: {
+				...obj
+			}
+		})
+	},
 	silenceAuth(obj) {
 		return myGet({
 			url: urls.silence_auth,

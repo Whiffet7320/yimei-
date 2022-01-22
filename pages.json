@@ -6,7 +6,7 @@
 		{
 			"path": "pages/tabBar/index",
 			"style": {
-				"navigationBarTitleText": "医美小程序",
+				"navigationBarTitleText": "医美",
 				"navigationBarBackgroundColor": "#FECF05",
 				"navigationBarTextStyle": "black"
 			}

@@ -11,9 +11,11 @@
 					<!-- 已收藏 -->
 					<u-icon name="star-fill" color="#000000" size="48" v-if="obj.is_collect==1"></u-icon>
 				</view>
+				<!-- #ifdef MP-WEIXIN -->
 				<button class="btnshare u-reset-button" open-type="share">
 					<u-icon name="zhuanfa" style='margin-left: 40rpx;' color="#000000" size="50"></u-icon>
 				</button>
+				<!-- #endif -->
 			</view>
 			<view class="nav1-flex">
 				<image class="pic" :src="obj.doctor_img" mode=""></image>
@@ -72,6 +74,7 @@
 				<u-loadmore :status="status" font-size="22" />
 			</view>
 		</view>
+		<!-- #ifdef MP-WEIXIN -->
 		<view class="fixedBtns">
 			<button open-type="contact" bindcontact="handleContact" class="btn1">
 				<image src="/static/image/zu1574.png" class="b-pic" mode=""></image>
@@ -86,6 +89,23 @@
 				<view class="b-txt">专家面诊</view>
 			</button>
 		</view>
+		<!-- #endif -->
+		<!-- #ifdef APP-PLUS -->
+		<view class="fixedBtns">
+			<view @click="callPhone" class="btn1">
+				<image src="/static/image/zu1574.png" class="b-pic" mode=""></image>
+				<view class="b-txt">在线咨询</view>
+			</view>
+			<view @click="callPhone" class="btn1 btn2">
+				<image src="/static/image/zu1575.png" class="b-pic" mode=""></image>
+				<view class="b-txt">挂号预约</view>
+			</view>
+			<view @click="callPhone" class="btn1 btn2">
+				<image src="/static/image/lujin2236.png" class="b-pic" mode=""></image>
+				<view class="b-txt">专家面诊</view>
+			</view>
+		</view>
+		<!-- #endif -->
 	</view>
 </template>
 
@@ -114,6 +134,7 @@
 		},
 		data() {
 			return {
+				tel:'',
 				pingjiaObj:{},
 				pinglunList: [],
 				obj: {},
@@ -138,7 +159,12 @@
 				status: 'loadmore'
 			}
 		},
-		onLoad(options){
+		async onLoad(options){
+			await this.$api.lianxifangshi().then(res => {
+				if(res.status==200){
+					this.tel = res.data.img;
+				}
+			});
 			if(options.id){
 				this.id = options.id;
 				this.obj = this.doctorInfo;
@@ -169,6 +195,15 @@
 		// 	}, 900)
 		// },
 		methods: {
+			callPhone(){
+				if(this.tel==""){
+					this.$u.toast("暂未绑定电话号码");
+					return false;
+				}
+				uni.makePhoneCall({
+				    phoneNumber: this.tel //仅为示例
+				});
+			},
 			async getPinglunData(type) {
 				this.status = 'loading';
 				setTimeout(async () => {

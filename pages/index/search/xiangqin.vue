@@ -21,10 +21,12 @@
 				<view class="txt2" v-if="obj.storeInfo.cateName.length">{{obj.storeInfo.cateName[0].cate_name}}</view>
 			</view>
 			<view class="right">
+				<!-- #ifdef MP-WEIXIN -->
 				<button open-type="share" class="u-reset-button">
 					<image src="/static/image/zu1570.png" class="r-pic" mode=""></image>
 					<view class="txt1">分享</view>
 				</button>
+				<!-- #endif -->
 			</view>
 		</view>
 		<!-- <view class="nav4">
@@ -53,10 +55,11 @@
 		</view> -->
 		<view class="tabmenu_sticky">
 			<view class="tabmenu">
-				<view class="tabitem" :class="{'active':current==index}" v-for="(item,index) in list" :key="index" @click="tabsChange(index)">{{item.name}}</view>
+				<view class="tabitem" :class="{'active':current==index}" v-for="(item,index) in list" :key="index"
+					@click="tabsChange(index)">{{item.name}}</view>
 			</view>
 		</view>
-		<view class="tabcont">
+		<view class="tabcont" v-if="three">
 			<view class="i1" v-if="swiperCurrent == 0">
 				<u-parse :html="obj.storeInfo.description"></u-parse>
 			</view>
@@ -64,7 +67,18 @@
 				<image :src="obj.doctor_info.doctor_product_img" mode="widthFix"></image>
 			</view>
 			<view class="i3" v-if="swiperCurrent == 2">
-				<comment-list :Obj="pingjiaObj" :list="pinglunList" @getPinglunData="getPinglunData" @toSeeImg="toSeeImg"></comment-list>
+				<comment-list :Obj="pingjiaObj" :list="pinglunList" @getPinglunData="getPinglunData"
+					@toSeeImg="toSeeImg"></comment-list>
+				<u-loadmore :status="status" font-size="22" />
+			</view>
+		</view>
+		<view class="tabcont" v-else>
+			<view class="i1" v-if="swiperCurrent == 0">
+				<u-parse :html="obj.storeInfo.description"></u-parse>
+			</view>
+			<view class="i3" v-if="swiperCurrent == 1">
+				<comment-list :Obj="pingjiaObj" :list="pinglunList" @getPinglunData="getPinglunData"
+					@toSeeImg="toSeeImg"></comment-list>
 				<u-loadmore :status="status" font-size="22" />
 			</view>
 		</view>
@@ -86,16 +100,32 @@
 			</view>
 			<view @click="toQuerendingdan" class="btn">立即购买</view>
 		</view>
-		<view>
+		<!-- #ifdef MP-WEIXIN -->
+		<!-- <view>
 			<button open-type="contact" class="u-reset-button">
 				<image src="/static/image/zu1840.png" class="kefu" mode=""></image>
 			</button>
+		</view> -->
+		<view>
+			<view @click="callPhone" class="u-reset-button">
+				<image src="/static/image/zu1840.png" class="kefu" mode=""></image>
+			</view>
 		</view>
+		<!-- #endif -->
+		<!-- #ifdef APP-PLUS -->
+		<view>
+			<view @click="callPhone" class="u-reset-button">
+				<image src="/static/image/zu1840.png" class="kefu" mode=""></image>
+			</view>
+		</view>
+		<!-- #endif -->
 	</view>
 </template>
 
 <script>
-	import {mapState} from "vuex";
+	import {
+		mapState
+	} from "vuex";
 	import commentList from "@/components/commentList";
 	export default {
 		computed: {
@@ -114,16 +144,22 @@
 				// }, 800)
 			},
 		},
-		components:{
+		components: {
 			commentList
 		},
 		data() {
 			return {
-				storeInfo:{},
-				pingjiaObj:{},
+				three:false,
+				tel: '',
+				storeInfo: {},
+				pingjiaObj: {},
 				pinglunList: [],
 				id: '',
-				obj: {},
+				obj: {
+					storeInfo: {
+						cateName: ''
+					}
+				},
 				isOnShow: true,
 				navTitle: '',
 				bannerList: [],
@@ -145,24 +181,31 @@
 				status: 'loadmore'
 			}
 		},
-		onLoad(options) {
+		async onLoad(options) {
+			console.log(options)
 			//扫码携带参数处理
 			if (options.scene) {
-			  let value = this.$tool.getUrlParams(decodeURIComponent(options.scene));
-			  if (value.id) options.id = value.id;
-			  //记录推广人uid
-			  if (value.pid) getApp().globalData.spid = value.pid;
+				let value = this.$tool.getUrlParams(decodeURIComponent(options.scene));
+				if (value.id) options.id = value.id;
+				//记录推广人uid
+				if (value.pid) getApp().globalData.spid = value.pid;
 			}
 			if (!options.id) {
-			  this.$u.toast("缺少参数无法查看商品");
-			  setTimeout(()=>{
-				  uni.navigateBack();
-			  },1500)
+				this.$u.toast("缺少参数无法查看商品");
+				setTimeout(() => {
+					uni.navigateBack();
+				}, 1500)
 			} else {
-			  this.id = options.id;
+				this.id = options.id;
+				console.log(this.id, 12)
 			}
 			//记录推广人uid
 			if (options.spid) getApp().globalData.spid = options.spid;
+			await this.$api.lianxifangshi().then(res => {
+				if (res.status == 200) {
+					this.tel = res.data.img;
+				}
+			});
 		},
 		onShow() {
 			if (!this.isOnShow) {
@@ -190,12 +233,21 @@
 			}
 		},
 		methods: {
+			callPhone() {
+				if (this.tel == "") {
+					this.$u.toast("暂未绑定电话号码");
+					return false;
+				}
+				uni.makePhoneCall({
+					phoneNumber: this.tel //仅为示例
+				});
+			},
 			async getPinglunData() {
 				this.status = 'loading';
 				setTimeout(async () => {
 					const res = await this.$api.replyList({
-						page:this.pinlunPage,
-						limit:this.pinlunPageSize
+						page: this.pinlunPage,
+						limit: this.pinlunPageSize
 					}, this.id)
 					this.pingjiaObj = res.data.comment;
 					if (res.data.list.length == 0) {
@@ -207,13 +259,31 @@
 				}, 200)
 			},
 			async getData() {
+				console.log(this.id)
 				const res = await this.$api.detail(this.id);
-				if(res.status==200){
+				if (res.status == 200) {
+					if (res.data.doctor_info) {
+						this.list = [{
+							name: '产品介绍'
+						}, {
+							name: '医生描述'
+						}, {
+							name: '产品评价'
+						}]
+						this.three = true;
+					} else {
+						this.list = [{
+							name: '产品介绍'
+						}, {
+							name: '产品评价'
+						}]
+						this.three = false;
+					}
 					this.obj = res.data;
 					this.storeInfo = res.data.storeInfo;
 					this.navTitle = res.data.storeInfo.store_name;
 					uni.setNavigationBarTitle({
-						title:res.data.storeInfo.store_name.substring(0, 16)
+						title: res.data.storeInfo.store_name.substring(0, 16)
 					})
 					this.obj.storeInfo.slider_image.forEach((ele, i) => {
 						this.$set(this.bannerList, i, {
@@ -223,7 +293,8 @@
 				}
 			},
 			toSeeImg(val) {
-				let i = val.index, imgArr = val.imgArr;
+				let i = val.index,
+					imgArr = val.imgArr;
 				this.isOnShow = false;
 				uni.previewImage({
 					current: i,
@@ -260,10 +331,10 @@
 					if (res2.status == 200) {
 						var obj = {
 							...this.obj.doctor_info,
-							yuprice:res2.data.cartInfo[0].sum_price,
-							weiPrice:this.obj.storeInfo.finish_pay_price,
-							store_name:res2.data.cartInfo[0].productInfo.store_name,
-							orderKey:res2.data.orderKey,
+							yuprice: res2.data.cartInfo[0].sum_price,
+							weiPrice: this.obj.storeInfo.finish_pay_price,
+							store_name: res2.data.cartInfo[0].productInfo.store_name,
+							orderKey: res2.data.orderKey,
 						}
 						uni.navigateTo({
 							url: `/pages/index/search/querendingdan?obj=${encodeURIComponent(JSON.stringify(obj))}&cartId=${res.data.cartId}&storeInfo=${encodeURIComponent(JSON.stringify(this.storeInfo))}`
@@ -300,32 +371,32 @@
 					this.height = res[0][this.swiperCurrentIndex].height;
 				})
 			},
-			toHome(){
+			toHome() {
 				uni.switchTab({
-					url:"/pages/tabBar/index"
+					url: "/pages/tabBar/index"
 				})
 			},
-			toCollect(){
+			toCollect() {
 				if (this.storeInfo.userCollect) {
-					this.$api.collectDel(this.id).then((res)=>{
-						if(res.status==200){
+					this.$api.collectDel(this.id).then((res) => {
+						if (res.status == 200) {
 							this.$u.toast("取消成功");
-							this.$set(this.storeInfo,'userCollect',false)
-						}else{
+							this.$set(this.storeInfo, 'userCollect', false)
+						} else {
 							this.$u.toast(res.msg);
 						}
-					}).catch((err)=>{
+					}).catch((err) => {
 						this.$u.toast(err);
 					})
-				}else{
-					this.$api.collectAdd(this.id).then((res)=>{
-						if(res.status==200){
+				} else {
+					this.$api.collectAdd(this.id).then((res) => {
+						if (res.status == 200) {
 							this.$u.toast(res.msg);
-							this.$set(this.storeInfo,'userCollect',true)
-						}else{
+							this.$set(this.storeInfo, 'userCollect', true)
+						} else {
 							this.$u.toast(res.msg);
 						}
-					}).catch((err)=>{
+					}).catch((err) => {
 						this.$u.toast(err);
 					})
 				}
@@ -343,6 +414,7 @@
 	/deep/ .u-load-more-wrap {
 		height: 100rpx !important;
 	}
+
 	.index {
 		position: relative;
 	}
@@ -479,19 +551,22 @@
 			justify-content: space-between;
 		}
 	}
-	.tabmenu_sticky{
+
+	.tabmenu_sticky {
 		position: sticky;
-		top:0;
-		left:0;
-		right:0;
-		.tabmenu{
+		top: 0;
+		left: 0;
+		right: 0;
+
+		.tabmenu {
 			position: relative;
 			width: 100%;
 			height: 116rpx;
 			background-color: #FFFFFF;
 			display: flex;
-			.tabitem{
-				flex:1;
+
+			.tabitem {
+				flex: 1;
 				height: 96rpx;
 				display: flex;
 				align-items: center;
@@ -499,17 +574,19 @@
 				font-size: 28rpx;
 				color: #707070;
 				position: relative;
-				&.active{
-					color:#BD9E81;
-					&::before{
-						content:"";
+
+				&.active {
+					color: #BD9E81;
+
+					&::before {
+						content: "";
 						width: 64rpx;
 						height: 2rpx;
 						background-color: #BD9E81;
 						position: absolute;
-						bottom:12rpx;
-						left:50%;
-						right:0;
+						bottom: 12rpx;
+						left: 50%;
+						right: 0;
 						transform: translateX(-50%);
 						z-index: 20;
 					}
@@ -517,17 +594,21 @@
 			}
 		}
 	}
-	.tabcont{
+
+	.tabcont {
 		width: 100%;
-		.i2{
+
+		.i2 {
 			width: 100%;
 			text-align: center;
 		}
-		.i3{
+
+		.i3 {
 			background-color: #FFFFFF;
 			margin-top: 20rpx;
 		}
 	}
+
 	.kefu {
 		position: fixed;
 		bottom: 120rpx;
@@ -536,6 +617,7 @@
 		height: 172rpx;
 		z-index: 100;
 	}
+
 	.footer1 {
 		position: fixed;
 		z-index: 50;
@@ -565,7 +647,7 @@
 
 	.footer2 {
 		position: fixed;
-		left:0;
+		left: 0;
 		bottom: 0;
 		z-index: 50;
 		width: 100%;
@@ -574,6 +656,7 @@
 		background: #FFFFFF;
 		box-shadow: 0rpx 8rpx 28rpx rgba(166, 179, 194, 0.3);
 		display: flex;
+
 		.item {
 			margin-top: 12rpx;
 			height: 80rpx;

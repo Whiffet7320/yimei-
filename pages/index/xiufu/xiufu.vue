@@ -9,11 +9,20 @@
 			<image :src="bigImg" mode="widthFix"></image>
 		</view>
 		<u-gap height="140"></u-gap>
+		<!-- #ifdef MP-WEIXIN -->
 		<view class="footer">
 			<view class="btn">
 				<button open-type="contact" class="u-reset-button">专家会诊团预约</button>
 			</view>
 		</view>
+		<!-- #endif -->
+		<!-- #ifdef APP-PLUS -->
+		<view class="footer">
+			<view class="btn">
+				<view @click="callPhone" class="u-reset-button">专家会诊团预约</view>
+			</view>
+		</view>
+		<!-- #endif -->
 	</view>
 </template>
 
@@ -22,16 +31,30 @@
 		data() {
 			return {
 				bigImg:'',
+				tel:'',
 			}
 		},
-		onLoad(options) {
+		async onLoad(options) {
+			await this.$api.lianxifangshi().then(res => {
+				if(res.status==200){
+					this.tel = res.data.img;
+				}
+			});
 			this.bigImg = options.bigImg;
 			uni.setNavigationBarTitle({
 				title: options.index
 			})
 		},
 		methods: {
-
+			callPhone(){
+				if(this.tel==""){
+					this.$u.toast("暂未绑定电话号码");
+					return false;
+				}
+				uni.makePhoneCall({
+				    phoneNumber: this.tel //仅为示例
+				});
+			},
 		}
 	}
 </script>

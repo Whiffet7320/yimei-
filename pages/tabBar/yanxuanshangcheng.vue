@@ -132,7 +132,7 @@
 					</view>
 					<view class="down">
 						<view class="d-t1">￥{{item.price}}</view>
-						<image src="/static/image/zu1521.png" class="d-pic" mode=""></image>
+						<image @click.stop="addGwc(item)" src="/static/image/zu1521.png" class="d-pic" mode=""></image>
 					</view>
 				</view>
 			</view>
@@ -205,6 +205,18 @@
 		// 	},900)
 		// },
 		methods: {
+			async addGwc(item){
+				console.log(item)
+				const res = await this.$api.cartAdd({
+					productId: item.product_id,
+					cartNum: 1,
+					uniqueId: item.sku.unique,
+					new:0
+				})
+				if(res.status==200){
+					this.cartCount ++;
+				}
+			},
 			async getData2(){
 				const res = await this.$api.yanxuan_index({
 					page:1,
